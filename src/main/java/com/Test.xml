@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule created="1596706916477" id="c0a8510173c31a088173c326087c001b" language="beanshell" name="AA Test Global Rule">
+  <Description>
+    Example rule to modify the given user that is being created during
+    aggregation or after a non-correlated pass-through authentication.
+    a non-correlated authentication attempt. In this example, if
+    the account is part of the Administrator group, we give
+    the new Identity the ApplicationAdministrator capability.
+  </Description>
+  <Signature returnType="Identity">
+    <Inputs>
+      <Argument name="context">
+        <Description>
+          A sailpoint.api.SailPointContext object that can be used to
+          access the database.
+        </Description>
+      </Argument>
+      <Argument name="environment" type="Map">
+        <Description>
+          Arguments passed to the aggregation task.
+        </Description>
+      </Argument>
+      <Argument name="application">
+        <Description>
+          Application being aggregated.
+        </Description>
+      </Argument>
+      <Argument name="account" type="ResourceObject">
+        <Description>
+          The resource account for the identity being created.
+        </Description>
+      </Argument>
+      <Argument name="identity" type="Identity">
+        <Description>
+          The identity that is being created.
+        </Description>
+      </Argument>
+    </Inputs>
+  </Signature>
+  <Source>
+    
+    import sailpoint.object.Identity;
+    import sailpoint.object.Capability;
+    import sailpoint.object.ResourceObject;
+
+    // change the name to a combination of firstname and lastname
+    String firstname = account.getStringAttribute("firstname");
+    String lastname = account.getStringAttribute("lastname");
+    String name  = firstname + "." + lastname;
+    identity.setName(name);
+
+    // add capabilities based on group membership
+    List groups = (List)account.getAttribute("memberOf");
+    if ( ( groups != null ) &amp;&amp; ( groups.contains("Administrator") ) ) {
+        identity.add(context.getObjectByName(Capability.class, "ApplicationAdministrator"));
+    }
+
+    
+  </Source>
+</Rule>
